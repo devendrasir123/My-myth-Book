@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>हिन्दू पौराणिक कथाहरू - देवेन्द्र निरौला</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Merienda:wght@700&family=Noto+Sans+Devanagari:wght@400;700&family=Tiro+Devanagari+Nepali&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Noto Sans Devanagari', 'Tiro Devanagari Nepali', sans-serif;
+            overflow: hidden;
+            background-color: #e0e0e0; /* Fallback */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .book-container {
+            width: 90vw;
+            max-width: 1000px; /* Max width of the book */
+            height: 80vh;
+            max-height: 700px; /* Max height of the book */
+            position: relative;
+            perspective: 2500px; /* Increased for a more dramatic 3D effect */
+        }
+
+        .page {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-style: preserve-3d;
+            transition: transform 1s, z-index 0.5s step-end; /* z-index transition for proper layering */
+            transform-origin: left center; /* Flip from the left spine */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            background-color: white; /* Default page background */
+        }
+
+        .page .page-content {
+            text-align: center;
+        }
+
+        .page img.deity-image {
+            max-width: 150px;
+            max-height: 150px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #f0f0f0; /* Placeholder background */
+        }
+
+        /* Page States */
+        .page.flipped {
+            transform: rotateY(-180deg);
+            z-index: 1; /* Flipped pages go behind */
+        }
+
+        .page.active {
+            transform: rotateY(0deg);
+            z-index: 10; /* Active page is on top */
+        }
+
+        /* Cover Page Styling */
+        #cover-page {
+            background: linear-gradient(135deg, #FFD700 0%, #F57C00 100%); /* Gold to Orange */
+            color: #4A148C; /* Deep Purple text */
+            z-index: 20; /* Cover is initially on top */
+            text-align: center;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        #cover-page h1 {
+            font-family: 'Merienda', 'Tiro Devanagari Nepali', cursive;
+            font-size: 3rem;
+            color: #880E4F; /* Maroon */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        #cover-page .author-name {
+            font-family: 'Lobster', cursive;
+            font-size: 1.8rem;
+            color: #0D47A1; /* Dark Blue */
+            margin-top: 5px;
+        }
+        #cover-page .subtitle {
+            font-family: 'Tiro Devanagari Nepali', serif;
+            font-size: 1.2rem;
+            color: #424242;
+        }
+         /* Specific page styles - add more variety */
+        #page-1 { background: linear-gradient(to bottom right, #E1F5FE, #B3E5FC); color: #01579B; } /* Light Blue */
+        #page-2 { background: linear-gradient(to bottom right, #FCE4EC, #F8BBD0); color: #880E4F; } /* Light Pink */
+        #page-3 { background: linear-gradient(to bottom right, #E8F5E9, #C8E6C9); color: #1B5E20; } /* Light Green */
+        #page-4 { background: linear-gradient(to bottom right, #FFFDE7, #FFF9C4); color: #F57F17; } /* Light Yellow */
+        #page-5 { background: linear-gradient(to bottom right, #F3E5F5, #E1BEE7); color: #4A148C; } /* Light Purple */
+        #page-6 { background: linear-gradient(to bottom right, #E0F2F1, #B2DFDB); color: #004D40; } /* Light Teal */
+        #page-7 { background: linear-gradient(to bottom right, #FBE9E7, #FFCCBC); color: #BF360C; } /* Light Orange */
+        #page-8 { background: linear-gradient(to bottom right, #EDE7F6, #D1C4E9); color: #311B92; } /* Light Indigo */
+        #page-9 { background: linear-gradient(to bottom right, #E0F7FA, #B2EBF2); color: #006064; } /* Light Cyan */
+        #page-10 { background: linear-gradient(to bottom right, #F9FBE7, #F0F4C3); color: #558B2F; } /* Light Lime */
+
+
+        .navigation-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100; /* Above all pages */
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .navigation-buttons button {
+            margin: 0 10px;
+            font-family: 'Tiro Devanagari Nepali', sans-serif;
+        }
+
+        /* For smaller screens */
+        @media (max-width: 768px) {
+            .book-container {
+                width: 95vw;
+                height: 90vh;
+            }
+            #cover-page h1 { font-size: 2.2rem; }
+            #cover-page .author-name { font-size: 1.5rem; }
+            .page img.deity-image { max-width: 100px; max-height: 100px; }
+            .page h2 { font-size: 1.5rem; }
+            .page p { font-size: 0.9rem; }
+        }
+        .page h2 { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; }
+        .page p { font-family: 'Tiro Devanagari Nepali', serif; font-size: 1.1rem; line-height: 1.8; }
+
+    </style>
+</head>
+<body>
+
+    <div class="book-container">
+        <!-- Cover Page -->
+        <div id="cover-page" class="page active">
+            <div class="page-content">
+                <h1>हिन्दू पौराणिक कथाहरू</h1>
+                <p class="subtitle">केही प्रमुख देवी-देवताहरूको परिचय</p>
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNmZmNjY2MiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQwIiBmaWxsPSJibGFjayI+4KSV4KS+4KSwPC90ZXh0Pjwvc3ZnPg==" alt="पुस्तकको चित्र" class="deity-image my-4">
+                <p class="author-name">लेखक: देवेन्द्र निरौला</p>
+            </div>
+        </div>
+
+        <!-- Content Pages -->
+        <div id="page-1" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNmMDBiYWMiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpKrgpL7gpKjgpYHgpYbgpL88L3RleHQ+PC9zdmc+" alt="ब्रह्मा" class="deity-image">
+                <h2>ब्रह्मा</h2>
+                <p>सृष्टिकर्ता, ज्ञान र वेदका देवता। उहाँका चार मुखले चार वेदहरूको प्रतिनिधित्व गर्दछन्।</p>
+            </div>
+        </div>
+
+        <div id="page-2" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMwM2E5ZjQiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpKzgpLngpYbgpL3gpYHgpLo8L3RleHQ+PC9zdmc+" alt="विष्णु" class="deity-image">
+                <h2>विष्णु</h2>
+                <p>पालनकर्ता, धर्म र व्यवस्थाका रक्षक। उहाँले विभिन्न अवतारहरू लिनुभएको छ।</p>
+            </div>
+        </div>
+
+        <div id="page-3" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiM3OTU1MjAiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpKzgpLngpYbgpLI8L3RleHQ+PC9zdmc+" alt="शिव" class="deity-image">
+                <h2>शिव</h2>
+                <p>संहारकर्ता र पुनर्निमाणकर्ता, योगीहरूका आराध्यदेव। उहाँलाई महादेव पनि भनिन्छ।</p>
+            </div>
+        </div>
+
+        <div id="page-4" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNmZjViNzMiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpLLgpYHgpL7gpLLgpYHgpYI8L3RleHQ+PC9zdmc+" alt="सरस्वती" class="deity-image">
+                <h2>सरस्वती</h2>
+                <p>विद्या, कला, संगीत र ज्ञानकी देवी। उहाँको वाहन हाँस हो र हातमा वीणा हुन्छ।</p>
+            </div>
+        </div>
+
+        <div id="page-5" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNlOTFkMzkiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpYjgpYbgrKbgpL/gpLI8L3RleHQ+PC9zdmc+" alt="लक्ष्मी" class="deity-image">
+                <h2>लक्ष्मी</h2>
+                <p>धन, समृद्धि, सौभाग्य र सौन्दर्यकी देवी। उहाँ कमलको फूलमा विराजमान हुनुहुन्छ।</p>
+            </div>
+        </div>
+
+        <div id="page-6" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiM0Y2FmNTAiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpYHgpLDgpLXgpYIgLSDgpK7gpY3gpLPgpYHgL3RleHQ+PC9zdmc+" alt="पार्वती/दुर्गा" class="deity-image">
+                <h2>पार्वती/दुर्गा</h2>
+                <p>शक्ति, प्रेम र मातृत्वकी देवी। दुर्गाको रूपमा उहाँले दुष्टहरूको नाश गर्नुहुन्छ।</p>
+            </div>
+        </div>
+
+        <div id="page-7" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNmNDQzMzYiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpKbgpL/gpYHgpLg8L3RleHQ+PC9zdmc+" alt="गणेश" class="deity-image">
+                <h2>गणेश</h2>
+                <p>विघ्नहर्ता, बुद्धि र शुभकार्यका देवता। कुनै पनि शुभकार्य उहाँको पूजाबाट सुरु गरिन्छ।</p>
+            </div>
+        </div>
+
+        <div id="page-8" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiM5YzJlN2EiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpLbgpL3gpYHgpLzgpYHgpLg8L3RleHQ+PC9zdmc+" alt="हनुमान" class="deity-image">
+                <h2>हनुमान</h2>
+                <p>शक्ति, भक्ति र निष्ठाका प्रतीक। उहाँ भगवान रामका परम भक्त हुनुहुन्छ।</p>
+            </div>
+        </div>
+
+        <div id="page-9" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMyMTk2ZjMiIHJ4PSI4IiByeT0iOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpKrgpYHgpYfgrKvgpLA8L3RleHQ+PC9zdmc+" alt="कृष्ण" class="deity-image">
+                <h2>कृष्ण</h2>
+                <p>प्रेम, करुणा र लीलाका देवता। भगवद्गीताको उपदेश उहाँले नै दिनुभएको हो।</p>
+            </div>
+        </div>
+
+        <div id="page-10" class="page">
+            <div class="page-content">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiM4YmMzNDk7IiByeD0iOCIgcno9IjgiLz48dGV4dCB4PSI1MCUgeT0iNTUlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzYiIGZpbGw9IndoaXRlIj7gpKDgpYHgpLw8L3RleHQ+PC9zdmc+" alt="राम" class="deity-image">
+                <h2>राम</h2>
+                <p>मर्यादा पुरुषोत्तम, सत्य र धर्मका प्रतीक। रामायण उहाँकै जीवनमा आधारित छ।</p>
+            </div>
+        </div>
+        <!-- Add more pages up to page 10 following the pattern -->
+
+    </div>
+
+    <div class="navigation-buttons">
+        <button id="prev-btn" class="btn btn-primary" onclick="prevPage()">अघिल्लो</button>
+        <button id="next-btn" class="btn btn-success" onclick="nextPage()">अर्को</button>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <script>
+        const pages = document.querySelectorAll('.book-container .page');
+        let currentPageIndex = 0; // Start with the cover page
+
+        function updatePageDisplay() {
+            pages.forEach((page, index) => {
+                page.classList.remove('active', 'flipped');
+                if (index < currentPageIndex) {
+                    page.classList.add('flipped');
+                    page.style.zIndex = index; // Flipped pages should stack correctly
+                } else if (index === currentPageIndex) {
+                    page.classList.add('active');
+                    page.style.zIndex = pages.length; // Active page on top
+                } else {
+                    // Pages yet to be seen are effectively hidden by z-index or lack of active class
+                    page.style.zIndex = pages.length - (index - currentPageIndex);
+                }
+            });
+            updateNavButtons();
+        }
+
+        function nextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                currentPageIndex++;
+                updatePageDisplay();
+            }
+        }
+
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                updatePageDisplay();
+            }
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prev-btn').disabled = currentPageIndex === 0;
+            document.getElementById('next-btn').disabled = currentPageIndex === pages.length - 1;
+        }
+
+        // Add click listener to pages for turning
+        pages.forEach((page, index) => {
+            page.addEventListener('click', () => {
+                // Only allow turning to next page by clicking if it's the active page
+                // and not the last content page (or if you want clicking last page to do something else)
+                if (index === currentPageIndex && currentPageIndex < pages.length -1) {
+                     // Determine if click is on right half for next, left for prev (more complex)
+                     // For simplicity, clicking active page goes to next.
+                    nextPage();
+                }
+                // Clicking a flipped page could go back to it, but that's more complex.
+                // Current model: use buttons for prev, click active page for next.
+            });
+        });
+
+        // Initial setup
+        updatePageDisplay();
+    </script>
+
+</body>
+</html>
